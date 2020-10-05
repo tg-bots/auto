@@ -6,12 +6,13 @@ from database import db
 
 
 
-bot = telebot.TeleBot(config.token2)
+bot = telebot.TeleBot(config.token)
 db_cursor = db.cursor()
 
 
 
 def get_order_body(client_id):
+
     sql = "SELECT * FROM clients WHERE client_id={}".format(client_id)
     db_cursor.execute(sql)
 
@@ -65,22 +66,22 @@ def edit_phone_number(phone_number):
 
 @bot.message_handler(commands=['main'])
 def main(message):
-    print(message.chat.id)
-    #pass
+    pass
 
 
 @bot.message_handler(commands=['change'])
 def change_status(message):
+
     # Берет из базы данных статус юзера, исходя из его id
     sql = "SELECT status FROM users WHERE id_user={}".format(message.chat.id)
     db_cursor.execute(sql)
     user_status = db_cursor.fetchone()[0]
     # Если юзер администратор, то он становится исполнителем, иначе - администратором
-    if user_status == 'admin':
+    if user_status == 'admin' and message.chat.id == 294179642:
         sql = "UPDATE users SET status='{}' WHERE id_user={}".format('specialist', message.chat.id)
         db_cursor.execute(sql)
         db.commit()
-    elif user_status == 'specialist':
+    elif user_status == 'specialist' and message.chat.id == 294179642:
         sql = "UPDATE users SET status='{}' WHERE id_user={}".format('admin', message.chat.id)
         db_cursor.execute(sql)
         db.commit()
@@ -108,14 +109,12 @@ def menu(message):
     admin_balance = db_cursor.fetchone()[0]
 
     # Клиенты в работе
-    #sql = "SELECT client_id FROM clients WHERE admin_id={} AND status={}".format(message.chat.id, 0)
     sql = "SELECT client_id FROM clients WHERE admin_id={}".format(message.chat.id)
     db_cursor.execute(sql)
 
     clients_in_process_adm = len(db_cursor.fetchall())
 
     # Клиенты в работе спец
-    #sql = "SELECT client_id FROM clients WHERE specialist={} AND status={}".format(message.chat.id, 0)
     sql = "SELECT client_id FROM clients WHERE specialist={}".format(message.chat.id)
     db_cursor.execute(sql)
 
@@ -174,7 +173,6 @@ def add_client(message):
     except Exception:
         bot.send_message(text="Неверный номер телефона или уже существует", chat_id=message.chat.id,
                          reply_markup=return_keyboard())
-        # return menu(message)
         return
 
     # Запрос в базу данных
@@ -192,7 +190,6 @@ def add_client(message):
         client_id = db_cursor.fetchone()[0]
         bot.send_message(text="Клиент с таким номером телефона уже есть", chat_id=message.chat.id,
                          reply_markup=base_client_keyboard(client_id))
-        # return menu(message)
         return
 
     db.commit()
@@ -205,44 +202,24 @@ def add_client(message):
     db_cursor.execute(sql)
 
     chat_name = db_cursor.fetchone()[0]
-    print(chat_name)
 
     sql = "SELECT client_id,phone,date,time FROM clients WHERE admin_id={}".format(message.chat.id)
     db_cursor.execute(sql)
 
     from_clients = db_cursor.fetchall()
-    print(from_clients)
 
     client_id = from_clients[len(from_clients) - 1][0]
-    tel = from_clients[len(from_clients) - 1][1]
-    date = from_clients[len(from_clients) - 1][2].strftime("%Y-%m-%d")
-    time = str(from_clients[len(from_clients) - 1][3])
 
-    comment = ''
-    # client_id = ''
 
     sql = "SELECT username FROM users WHERE id_user={}".format(message.chat.id)
     db_cursor.execute(sql)
 
-    admin_name = db_cursor.fetchone()[0]
 
     sql = "SELECT chat_id FROM chats WHERE city_code={}".format(777)
     db_cursor.execute(sql)
 
-    admin_chat_id = db_cursor.fetchone()[0]  # FOR TOKEN 2
-    #admin_chat_id = -456422760
+    admin_chat_id = db_cursor.fetchone()[0]
 
-    """
-    bot.send_message(text="Создан клиент\n"
-                          "chat: {}\n"
-                          "tel: {}\n"
-                          "comment: {}\n"
-                          "date: {}\n"
-                          "time: {}\n"
-                          "client_id: {}\n"
-                          "admin: {}\n".format(chat_name, tel, comment, date, time, client_id, admin_name),
-                     chat_id=admin_chat_id)
-    """
 
     order_body = get_order_body(client_id)
 
@@ -251,26 +228,20 @@ def add_client(message):
                      chat_id=admin_chat_id)
 
     # Меню выбора города
-
-    # menu(message)
-    #bot.send_message(text="Выберите город", chat_id=message.chat.id, reply_markup=locations_keyboard())
     bot.send_message(text="Выберите город", chat_id=message.chat.id, reply_markup=locations_keyboard(phone))
 
 
 @bot.callback_query_handler(func=lambda message: message.data == 'my_clients_adm')
 def my_clients_adm(message):
 
-    #sql = "SELECT * FROM clients WHERE admin_id={} AND status={} ORDER BY date, time".format(message.message.chat.id, 0)
     sql = "SELECT * FROM clients WHERE admin_id={} ORDER BY date, time".format(message.message.chat.id)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
-    print(data)
 
     if len(data) == 0:
         bot.send_message(text="У вас еще нет клиентов", chat_id=message.message.chat.id, reply_markup=return_keyboard())
         return
-        # return menu(message.message)
 
     counter = 1
 
@@ -309,7 +280,6 @@ def my_clients_adm(message):
                          reply_markup=client_keyboard_adm(row[0]))
         counter += 1
 
-    # menu(message.message)
     bot.send_message(text="Вернуться в главное меню", chat_id=message.message.chat.id,
                      reply_markup=return_keyboard())
 
@@ -317,19 +287,14 @@ def my_clients_adm(message):
 @bot.callback_query_handler(func=lambda message: message.data == 'my_clients_spec')
 def my_clients_spec(message):
 
-
-    #sql = "SELECT * FROM clients WHERE specialist={} AND status={} ORDER BY date, time".format(message.message.chat.id,0)
     sql = "SELECT * FROM clients WHERE specialist={} ORDER BY date, time".format(message.message.chat.id)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
 
-    print(data)
-
     if len(data) == 0:
         bot.send_message(text="У вас еще нет клиентов", chat_id=message.message.chat.id,
                          reply_markup=return_keyboard())
-        # return menu(message.message)
         return
 
     counter = 1
@@ -369,7 +334,6 @@ def my_clients_spec(message):
                          reply_markup=client_keyboard_spec(row[0]))
         counter += 1
 
-    # menu(message.message)
     bot.send_message(text="Вернуться в главное меню", chat_id=message.message.chat.id,
                      reply_markup=return_keyboard())
 
@@ -378,8 +342,6 @@ def my_clients_spec(message):
 def city_chat_handler(message):
 
     city = message.data.split('_')[1]
-    print(city)
-
     phone = message.data.split('_')[2]
 
 
@@ -391,58 +353,16 @@ def city_chat_handler(message):
     db_cursor.execute(sql)
 
     chat_all = db_cursor.fetchall()
-    print(chat_all)
 
     chat_name = chat_all[0][2]
-    chat_id = chat_all[0][1]  # FOR TOKEN 2
-    #chat_id = -456422760
+    chat_id = chat_all[0][1]
 
-    """
-    sql = "SELECT client_id,phone,date,time FROM clients WHERE admin_id={}".format(message.message.chat.id)
-    db_cursor.execute(sql)
-
-    from_clients = db_cursor.fetchall()
-    print(from_clients)
-
-    client_id = from_clients[len(from_clients) - 1][0]
-    tel = from_clients[len(from_clients) - 1][1]
-    date = from_clients[len(from_clients) - 1][2].strftime("%Y-%m-%d")
-    time = str(from_clients[len(from_clients) - 1][3])
-    """
-
-    #sql = "SELECT client_id, date, time FROM clients WHERE phone={}".format(phone)
-    #db_cursor.execute(sql)
-
-    #from_clients = db_cursor.fetchall()
-
-    #client_id = from_clients[0][0]
-    #date = from_clients[0][1].strftime("%Y-%m-%d")
-    #time = str(from_clients[0][2])
 
     sql = "SELECT client_id FROM clients WHERE phone={}".format(phone)
     db_cursor.execute(sql)
 
     client_id = db_cursor.fetchone()[0]
 
-    comment = ''
-    # client_id = ''
-
-    #sql = "SELECT username FROM users WHERE id_user={}".format(message.message.chat.id)
-    #db_cursor.execute(sql)
-
-    #admin_name = db_cursor.fetchone()[0]
-
-    """
-    bot.send_message(text="Создан клиент\n"
-                          "chat: {}\n"
-                          "tel: {}\n"
-                          "comment: {}\n"
-                          "date: {}\n"
-                          "time: {}\n"
-                          "client_id: {}\n"
-                          "admin: {}\n".format(chat_name, tel, comment, date, time, client_id, admin_name),
-                     chat_id=chat_id, reply_markup=accept_client())
-    """
 
     order_body = get_order_body(client_id)
 
@@ -453,7 +373,6 @@ def city_chat_handler(message):
 
     bot.send_message(text="Клиент отправлен в чат", chat_id=message.message.chat.id, reply_markup=return_keyboard())
 
-    # menu(message.message)
 
 
 @bot.callback_query_handler(func=lambda message: message.data[:7] == 'accept_')
@@ -476,27 +395,6 @@ def accept_order(message):
         db_cursor.execute(sql)
         spec = db_cursor.fetchone()[0]
 
-        # Извлечение поля специалиста из базы клиентов для определения занятости клиента
-        sql = "SELECT specialist FROM clients WHERE phone={}".format(phone)
-        db_cursor.execute(sql)
-        is_spec = db_cursor.fetchone()
-
-        # Извлечение поля статуса заказа
-        sql = "SELECT status FROM clients WHERE phone={}".format(phone)
-        db_cursor.execute(sql)
-        is_completed = db_cursor.fetchone()[0]
-
-        """
-        if len(is_spec) != 0 and is_spec[0] is not None:
-            bot.send_message(text="Клиент уже занят", chat_id=message.message.chat.id)
-            return
-        """
-        """
-        if is_completed == '1':
-            bot.send_message(text="Данный заказ уже завершен", chat_id=message.message.chat.id)
-            return
-        """
-
         # Запись в базу о том, что теперь клиентом занимается специалист
         sql = "UPDATE clients SET specialist={} WHERE phone={}".format(spec, phone)
         db_cursor.execute(sql)
@@ -506,8 +404,7 @@ def accept_order(message):
         sql = "SELECT chat_id FROM chats WHERE city_code={}".format(777)
         db_cursor.execute(sql)
 
-        admin_chat_id = db_cursor.fetchone()[0]  # FOR TOKEN 2
-        #admin_chat_id = -456422760
+        admin_chat_id = db_cursor.fetchone()[0]
 
         # Айди клиента
         sql = "SELECT client_id FROM clients WHERE phone={}".format(phone)
@@ -546,6 +443,7 @@ def add_comment_data(message):
 
 
 def add_comment(message, client_id):
+
     author_id = message.chat.id
 
     sql = "SELECT local_name FROM users WHERE id_user={}".format(author_id)
@@ -591,7 +489,6 @@ def add_comment(message, client_id):
                               "{}".format(order_body, message.text),
                          chat_id=adm_id, reply_markup=return_keyboard())
 
-    # FOR TOKEN 2
 
     if message.chat.id != 294179642:
         bot.send_message(text="Комметарий добавлен\n\n"
@@ -602,20 +499,19 @@ def add_comment(message, client_id):
                          chat_id=294179642, reply_markup=return_keyboard())
 
 
-    # menu(message)
     bot.send_message(text="Комментарий добавлен!", chat_id=message.chat.id,
                      reply_markup=return_keyboard())
 
 
 @bot.callback_query_handler(func=lambda message: message.data[:15] == 'client_history_')
 def print_client_history(message):
+
     client_id = message.data[15:]
 
     sql = "SELECT user_name,user_id,date,time,text FROM comments WHERE client_id={}".format(client_id)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
-    print(data)
 
     for row in data:
         bot.send_message(text="Автор: {}\n"
@@ -625,17 +521,18 @@ def print_client_history(message):
                               "Текст: {}".format(row[0], row[1], row[2].strftime("%Y-%m-%d"), str(row[3]), row[4]),
                          chat_id=message.message.chat.id)
 
-    # menu(message.message)
     bot.send_message(text="Вернуться в главное меню", chat_id=message.message.chat.id,
                      reply_markup=return_keyboard())
 
 
 @bot.callback_query_handler(func=lambda message: message.data[:10] == 'make_deal_')
 def make_deal_price(message):
+
     client_id = message.data[10:]
 
     bot.send_message(text="Укажите сумму сделки", chat_id=message.message.chat.id)
     bot.register_next_step_handler(message=message.message, callback=make_deal_approve, client_id=client_id)
+
 
 
 def make_deal_approve(message, client_id):
@@ -687,12 +584,6 @@ def make_deal(message):
 
         spec_name = db_cursor.fetchone()[0]
 
-        # Получение идентификатора менеджера
-        # sql = "SELECT admin_id FROM clients WHERE client_id={}".format(client_id)
-        # db_cursor.execute(sql)
-
-        # adm_id = db_cursor.fetchone()[0]
-
         # Отправление уведомления менеджерам
         if message.message.chat.id != adm_id:
             bot.send_message(text="{} закрыл сделку\n\n"
@@ -702,7 +593,6 @@ def make_deal(message):
                                   "Клиент №{} покупает авто".format(spec_name, order_body, client_id),
                              chat_id=adm_id, reply_markup=return_keyboard())
 
-        # FOR TOKEN 2
 
         if message.message.chat.id != 294179642:
             bot.send_message(text="{} закрыл сделку\n\n"
@@ -722,7 +612,6 @@ def make_deal(message):
         db_cursor.execute(sql)
         db.commit()
 
-        #
         sql = "UPDATE clients SET payment={} WHERE client_id={}".format(0,client_id)
         db_cursor.execute(sql)
         db.commit()
@@ -749,6 +638,7 @@ def make_deal(message):
 
 @bot.callback_query_handler(func=lambda message: message.data[:7] == 'refuse_')
 def refuse_client(message):
+
     client_id = message.data[7:]
 
     # Получение id менеджера
@@ -788,11 +678,6 @@ def refuse_comment(message, client_id, admin_id):
 
     spec_name = db_cursor.fetchone()[0]
 
-    # Получение идентификатора менеджера
-    # sql = "SELECT admin_id FROM clients WHERE client_id={}".format(client_id)
-    # db_cursor.execute(sql)
-
-    # adm_id = db_cursor.fetchone()[0]
     adm_id = admin_id
 
     # Отправление уведомления менеджерам
@@ -804,7 +689,6 @@ def refuse_comment(message, client_id, admin_id):
                               "{}".format(spec_name, client_id, order_body, message.text),
                          chat_id=adm_id, reply_markup=return_keyboard())
 
-    # FOR TOKEN 2
 
     if message.chat.id != 294179642:
         bot.send_message(text="{} отказался от клиента №{}\n\n"
@@ -821,6 +705,7 @@ def refuse_comment(message, client_id, admin_id):
 
 @bot.callback_query_handler(func=lambda message: message.data == 'get_payment')
 def get_payment(message):
+
     # Имя администратора
     sql = "SELECT local_name FROM users WHERE id_user={}".format(message.message.chat.id)
     db_cursor.execute(sql)
@@ -836,7 +721,6 @@ def get_payment(message):
     bot.send_message(text="Заявка на выплату отправлена", chat_id=message.message.chat.id,
                      reply_markup=return_keyboard())
 
-    # FOR TOKEN 2 ID=294179642 560544363
 
     bot.send_message(text="Администратор {} запрашивает выплату\n\n"
                           "Количество сделок: {}\n"
@@ -862,44 +746,7 @@ def approve_payment(message):
 
     admin_balance = db_cursor.fetchone()[0]
 
-    """
-    if admin_balance < 300:
-        admin_balance = 0
-    else:
-        admin_balance = 300
-    """
 
-    """
-    # Получение id клиентов админа
-    sql = "SELECT DISTINCT client_id FROM deals WHERE admin_id={}".format(admin_id)
-    db_cursor.execute(sql)
-
-    client_data = db_cursor.fetchall()
-    print(client_data)
-
-    # Запись в таблицу выплат
-    for client_info in client_data:
-        client_id = client_info[0]
-        sql = "INSERT INTO payments (client_id, admin_id, paid_sum, date, time) VALUES (%s,%s,%s,%s,%s)"
-        val = (client_id, admin_id, admin_balance, date, time)
-        db_cursor.execute(sql, val)
-        db.commit()
-
-    # Обнуление баланса
-    sql = "UPDATE users SET balance=0 WHERE id_user={}".format(admin_id)
-    db_cursor.execute(sql)
-    db.commit()
-
-    # Внесение информации об оплате в базу клиентов
-    sql = "UPDATE clients SET payment=1 WHERE admin_id={}".format(admin_id)
-    db_cursor.execute(sql)
-    db.commit()
-    
-    """
-
-    # Получение id всех клиентов админа
-    #sql = "SELECT client_id FROM clients WHERE admin_id={} AND status={}".format(admin_id,0)
-    #sql = "SELECT client_id FROM clients WHERE admin_id={}".format(admin_id)
     sql = "SELECT client_id FROM clients WHERE admin_id={} AND payment={}".format(admin_id,0)
     db_cursor.execute(sql)
 
@@ -1052,20 +899,23 @@ def set_spec_from_admin(message):
                      chat_id=message.message.chat.id,reply_markup=return_keyboard())
 
 
-# @bot.callback_query_handler(func=lambda message: message.data == 'next')
-
 
 
 @bot.callback_query_handler(func=lambda message: message.data[:20] == 'get_payment_history')
 def get_payment_history(message):
+
     sql = "SELECT * FROM payments WHERE admin_id={} AND paid_sum>{} ORDER BY date,time".format(message.message.chat.id,0)
     db_cursor.execute(sql)
+
     payment_history = db_cursor.fetchall()
+
     if len(payment_history) == 0:
         bot.send_message(text="У вас пока не было выплат", chat_id=message.message.chat.id,
                          reply_markup=return_keyboard())
         return
+
     counter = 1
+
     for payment in payment_history:
         client_id = payment[1]
         paid_sum = payment[3]
@@ -1099,8 +949,6 @@ def spec_list_keyboard(client_id):
     db_cursor.execute(sql)
 
     spec_list = db_cursor.fetchall()
-    print('spec list')
-    print(spec_list)
 
     keyboard = telebot.types.InlineKeyboardMarkup()
 
@@ -1183,10 +1031,6 @@ def admin_keyboard():
 
 
 def accept_client(phone):
-    #sql = "SELECT phone FROM clients WHERE specialist IS NULL"
-    #db_cursor.execute(sql)
-    #phone = db_cursor.fetchall()
-    #phone = phone[len(phone) - 1][0]
     keyboard = telebot.types.InlineKeyboardMarkup()
     keyboard.add(telebot.types.InlineKeyboardButton(text="Принять", callback_data='accept_{}'.format(phone)))
     return keyboard
