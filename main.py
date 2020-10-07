@@ -2,16 +2,40 @@ import telebot
 import config
 import re
 import datetime
-from database import db
-
+import mysql.connector
 
 
 bot = telebot.TeleBot(config.token)
+
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="rootuser16713",
+    db="bot",
+    charset="utf8"
+)
 db_cursor = db.cursor()
 
 
 
+
 def get_order_body(client_id):
+
+    global db, db_cursor
+
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
 
     sql = "SELECT * FROM clients WHERE client_id={}".format(client_id)
     db_cursor.execute(sql)
@@ -66,11 +90,35 @@ def edit_phone_number(phone_number):
 
 @bot.message_handler(commands=['main'])
 def main(message):
-    pass
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
 
 @bot.message_handler(commands=['change'])
 def change_status(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     # Берет из базы данных статус юзера, исходя из его id
     sql = "SELECT status FROM users WHERE id_user={}".format(message.chat.id)
@@ -91,10 +139,28 @@ def change_status(message):
 
 @bot.message_handler(content_types=['text'])
 def menu(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     # Берет из базы данных статус юзера, исходя из его id
     sql = "SELECT status FROM users WHERE id_user={}".format(message.chat.id)
     db_cursor.execute(sql)
-    user_status = db_cursor.fetchone()[0]
+
+    try:
+        user_status = db_cursor.fetchone()[0]
+    except:
+        return
 
     # Имя
     sql = "SELECT local_name FROM users WHERE id_user={}".format(message.chat.id)
@@ -134,6 +200,20 @@ def menu(message):
 
 @bot.callback_query_handler(func=lambda message: message.data == 'add_client')
 def add_client_data(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     # Запрос на ввод данных, при нажатии на кнопку "Добавить клиента"
     bot.send_message(text="Введите данные в формате\n"
                           "<телефон>\n"
@@ -145,7 +225,19 @@ def add_client_data(message):
 
 
 def add_client(message):
-    print(message.chat.id)
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     # Получение данных из сообщения
     # Разделение по переносу строки
@@ -153,7 +245,6 @@ def add_client(message):
 
     try:
         car_info = data[1]
-        print(car_info)
         note = '\n'.join(data[2:])
     except:
         car_info = ''
@@ -211,10 +302,6 @@ def add_client(message):
     client_id = from_clients[len(from_clients) - 1][0]
 
 
-    sql = "SELECT username FROM users WHERE id_user={}".format(message.chat.id)
-    db_cursor.execute(sql)
-
-
     sql = "SELECT chat_id FROM chats WHERE city_code={}".format(777)
     db_cursor.execute(sql)
 
@@ -233,6 +320,19 @@ def add_client(message):
 
 @bot.callback_query_handler(func=lambda message: message.data == 'my_clients_adm')
 def my_clients_adm(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     sql = "SELECT * FROM clients WHERE admin_id={} ORDER BY date, time".format(message.message.chat.id)
     db_cursor.execute(sql)
@@ -286,6 +386,19 @@ def my_clients_adm(message):
 
 @bot.callback_query_handler(func=lambda message: message.data == 'my_clients_spec')
 def my_clients_spec(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     sql = "SELECT * FROM clients WHERE specialist={} ORDER BY date, time".format(message.message.chat.id)
     db_cursor.execute(sql)
@@ -341,6 +454,19 @@ def my_clients_spec(message):
 @bot.callback_query_handler(func=lambda message: message.data[:5] == 'city_')
 def city_chat_handler(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     city = message.data.split('_')[1]
     phone = message.data.split('_')[2]
 
@@ -349,6 +475,19 @@ def city_chat_handler(message):
         sql = "SELECT * FROM chats WHERE city_code={}".format(1)
     elif city == 'petersburg':
         sql = "SELECT * FROM chats WHERE city_code={}".format(2)
+    elif city == 'voronezh':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(3)
+    elif city == 'krasnodar':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(4)
+    elif city == 'nnovgorod':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(5)
+    elif city == 'rostov':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(6)
+    elif city == 'samara':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(7)
+    elif city == 'perm':
+        sql = "SELECT * FROM chats WHERE city_code={}".format(8)
+
 
     db_cursor.execute(sql)
 
@@ -377,6 +516,19 @@ def city_chat_handler(message):
 
 @bot.callback_query_handler(func=lambda message: message.data[:7] == 'accept_')
 def accept_order(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     # Скрытие кнопки
     bot.edit_message_reply_markup(chat_id=message.message.chat.id, message_id=message.message.message_id)
@@ -444,6 +596,20 @@ def add_comment_data(message):
 
 def add_comment(message, client_id):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
+
     author_id = message.chat.id
 
     sql = "SELECT local_name FROM users WHERE id_user={}".format(author_id)
@@ -506,12 +672,29 @@ def add_comment(message, client_id):
 @bot.callback_query_handler(func=lambda message: message.data[:15] == 'client_history_')
 def print_client_history(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     client_id = message.data[15:]
 
     sql = "SELECT user_name,user_id,date,time,text FROM comments WHERE client_id={}".format(client_id)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
+
+    if len(data) == 0:
+        bot.send_message(text="Записей нет", chat_id=message.message.chat.id, reply_markup=return_keyboard())
+        return
 
     for row in data:
         bot.send_message(text="Автор: {}\n"
@@ -543,6 +726,20 @@ def make_deal_approve(message, client_id):
 
 @bot.callback_query_handler(func=lambda message: message.data[:3] == 'yes' or message.data[:2] == 'no')
 def make_deal(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     client_id = message.data.split('_')[1]
     price = message.data.split('_')[2]
     buy_auto = 0
@@ -639,6 +836,19 @@ def make_deal(message):
 @bot.callback_query_handler(func=lambda message: message.data[:7] == 'refuse_')
 def refuse_client(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     client_id = message.data[7:]
 
     # Получение id менеджера
@@ -669,6 +879,20 @@ def refuse_client(message):
 
 
 def refuse_comment(message, client_id, admin_id):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     # Получение тела заказа
     order_body = get_order_body(client_id)
 
@@ -690,6 +914,7 @@ def refuse_comment(message, client_id, admin_id):
                          chat_id=adm_id, reply_markup=return_keyboard())
 
 
+
     if message.chat.id != 294179642:
         bot.send_message(text="{} отказался от клиента №{}\n\n"
                               "Тело заказа:\n"
@@ -706,6 +931,20 @@ def refuse_comment(message, client_id, admin_id):
 @bot.callback_query_handler(func=lambda message: message.data == 'get_payment')
 def get_payment(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
+
     # Имя администратора
     sql = "SELECT local_name FROM users WHERE id_user={}".format(message.message.chat.id)
     db_cursor.execute(sql)
@@ -717,6 +956,10 @@ def get_payment(message):
     db_cursor.execute(sql)
 
     admin_balance = db_cursor.fetchone()[0]
+
+    if admin_balance <= 0:
+        bot.send_message(text="На вашем балансе нет средств для выплаты", chat_id=message.message.chat.id, reply_markup=return_keyboard())
+        return
 
     bot.send_message(text="Заявка на выплату отправлена", chat_id=message.message.chat.id,
                      reply_markup=return_keyboard())
@@ -731,6 +974,19 @@ def get_payment(message):
 
 @bot.callback_query_handler(func=lambda message: message.data[:16] == 'approve_payment_')
 def approve_payment(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     admin_id = message.data[16:]
 
@@ -788,9 +1044,21 @@ def return_to_menu(message):
 @bot.callback_query_handler(func=lambda message: message.data[:23] == 'start_work_with_client_')
 def start_work_with_client(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     client_id = message.data[23:]
 
-    print(client_id)
 
     # Получение id старого админа
     sql = "SELECT admin_id FROM clients WHERE client_id={}".format(client_id)
@@ -798,7 +1066,6 @@ def start_work_with_client(message):
 
     old_adm_id = db_cursor.fetchone()[0]
 
-    print('old admin:',old_adm_id)
 
     # Получение имени нового админа
     sql = "SELECT local_name FROM users WHERE id_user={}".format(message.message.chat.id)
@@ -840,6 +1107,20 @@ def set_specialist_options(message):
 
 @bot.callback_query_handler(func=lambda message: message.data[:19] == 'send_order_to_chat_')
 def send_order_to_chat(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     client_id = message.data[19:]
     sql = "SELECT phone FROM clients WHERE client_id={}".format(client_id)
     db_cursor.execute(sql)
@@ -860,11 +1141,21 @@ def set_spec_by_hand(message):
 @bot.callback_query_handler(func=lambda message: message.data[:8] == 'spec_id_')
 def set_spec_from_admin(message):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     spec_id = message.data.split('_')[2]
     client_id = message.data.split('_')[3]
-
-    print('spec id:',spec_id)
-    print('client_id:',client_id)
 
     # Обновление статуса клиента
     sql = "UPDATE clients SET status=0 WHERE client_id={}".format(client_id)
@@ -903,6 +1194,19 @@ def set_spec_from_admin(message):
 
 @bot.callback_query_handler(func=lambda message: message.data[:20] == 'get_payment_history')
 def get_payment_history(message):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
 
     sql = "SELECT * FROM payments WHERE admin_id={} AND paid_sum>{} ORDER BY date,time".format(message.message.chat.id,0)
     db_cursor.execute(sql)
@@ -944,6 +1248,20 @@ def next_five_clients_kb():
 
 
 def spec_list_keyboard(client_id):
+
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     # Список специалистов
     sql = "SELECT local_name,id_user FROM users WHERE status='specialist'"
     db_cursor.execute(sql)
@@ -1044,6 +1362,19 @@ def specialist_keyboard():
 
 def locations_keyboard(phone):
 
+    global db, db_cursor
+    try:
+        db.ping(True)
+    except Exception:
+        db = mysql.connector.connect(
+            host="88.99.149.39",
+            user="wm103323_bot",
+            password="c9tNB6V9K",
+            db="wm103323_bot",
+            charset="utf8"
+        )
+        db_cursor = db.cursor()
+
     sql = "SELECT client_id FROM clients WHERE phone={}".format(phone)
     db_cursor.execute(sql)
 
@@ -1052,6 +1383,12 @@ def locations_keyboard(phone):
     keyboard = telebot.types.InlineKeyboardMarkup()
     keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Москва", callback_data='city_moscow_{}'.format(phone)))
     keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Санкт-Петербург", callback_data='city_petersburg_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Воронеж", callback_data='city_voronezh_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Краснодар", callback_data='city_krasnodar_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Нижний Новгород", callback_data='city_nnovgorod_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Ростов-на-Дону", callback_data='city_rostov_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Самара", callback_data='city_samara_{}'.format(phone)))
+    keyboard.add(telebot.types.InlineKeyboardButton(text="🏙 Пермь", callback_data='city_perm_{}'.format(phone)))
     keyboard.add(telebot.types.InlineKeyboardButton(text="Назначить специалиста вручную", callback_data='set_by_hand_{}'.format(client_id)))
     return keyboard
 
