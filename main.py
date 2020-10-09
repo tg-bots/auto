@@ -45,6 +45,7 @@ def get_order_body(client_id):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -112,6 +113,7 @@ def main(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -129,6 +131,7 @@ def change_status(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -162,6 +165,7 @@ def menu(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -223,6 +227,7 @@ def add_client_data(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -248,6 +253,7 @@ def add_client(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -343,6 +349,7 @@ def my_clients_adm(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -409,6 +416,7 @@ def my_clients_spec(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -476,6 +484,7 @@ def city_chat_handler(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -539,6 +548,7 @@ def accept_order(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -618,6 +628,7 @@ def add_comment(message, client_id):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -694,6 +705,7 @@ def print_client_history(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -749,6 +761,7 @@ def make_deal(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -859,6 +872,7 @@ def refuse_client(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -903,6 +917,7 @@ def refuse_comment(message, client_id, admin_id):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -954,6 +969,7 @@ def get_payment(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -998,6 +1014,7 @@ def approve_payment(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1067,6 +1084,7 @@ def start_work_with_client(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1131,6 +1149,7 @@ def send_order_to_chat(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1164,6 +1183,7 @@ def set_spec_from_admin(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1218,6 +1238,7 @@ def get_payment_history(message):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1272,6 +1293,7 @@ def spec_list_keyboard(client_id):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -1385,6 +1407,7 @@ def locations_keyboard(phone):
     try:
         db.ping(True)
     except Exception:
+        db.close()
         db = mysql.connector.connect(
             host="localhost",
             user="root",
