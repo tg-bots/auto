@@ -1,3 +1,4 @@
+import time
 import telebot
 import config
 import re
@@ -5,7 +6,24 @@ import datetime
 import mysql.connector
 
 
+import flask
+from flask import Flask, request
+
+
+WEBHOOK_HOST = '194.58.123.197'
+WEBHOOK_PORT = 8443
+WEBHOOK_LISTEN = '194.58.123.197'
+
+WEBHOOK_SSL_CERT = 'webhook_cert.pem'
+WEBHOOK_SSL_PRIV = 'webhook_pkey.pem'
+
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST,WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (config.token)
+
+
 bot = telebot.TeleBot(config.token)
+
+app = Flask(__name__)
 
 
 db = mysql.connector.connect(
@@ -28,10 +46,10 @@ def get_order_body(client_id):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -95,10 +113,10 @@ def main(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -112,10 +130,10 @@ def change_status(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -145,10 +163,10 @@ def menu(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -159,7 +177,7 @@ def menu(message):
 
     try:
         user_status = db_cursor.fetchone()[0]
-    except:
+    except Exception:
         return
 
     # Имя
@@ -206,10 +224,10 @@ def add_client_data(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -231,10 +249,10 @@ def add_client(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -326,15 +344,15 @@ def my_clients_adm(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
 
-    sql = "SELECT * FROM clients WHERE admin_id={} ORDER BY date, time".format(message.message.chat.id)
+    sql = "SELECT * FROM clients WHERE admin_id={} AND status={} ORDER BY date, time".format(message.message.chat.id,0)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
@@ -392,15 +410,15 @@ def my_clients_spec(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
 
-    sql = "SELECT * FROM clients WHERE specialist={} ORDER BY date, time".format(message.message.chat.id)
+    sql = "SELECT * FROM clients WHERE specialist={} AND status={} ORDER BY date, time".format(message.message.chat.id,0)
     db_cursor.execute(sql)
 
     data = db_cursor.fetchall()
@@ -459,10 +477,10 @@ def city_chat_handler(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -522,10 +540,10 @@ def accept_order(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -601,10 +619,10 @@ def add_comment(message, client_id):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -677,10 +695,10 @@ def print_client_history(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -732,10 +750,10 @@ def make_deal(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -801,9 +819,10 @@ def make_deal(message):
 
 
         # Заверешение связи клиента и специалиста
-        sql = "UPDATE clients SET specialist=NULL WHERE client_id={}".format(client_id)
-        db_cursor.execute(sql)
-        db.commit()
+
+        #sql = "UPDATE clients SET specialist=NULL WHERE client_id={}".format(client_id)
+        #db_cursor.execute(sql)
+        #db.commit()
 
         sql = "UPDATE clients SET status=1 WHERE client_id={}".format(client_id)
         db_cursor.execute(sql)
@@ -841,10 +860,10 @@ def refuse_client(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -885,10 +904,10 @@ def refuse_comment(message, client_id, admin_id):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -936,10 +955,10 @@ def get_payment(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -980,10 +999,10 @@ def approve_payment(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1049,10 +1068,10 @@ def start_work_with_client(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1113,10 +1132,10 @@ def send_order_to_chat(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1146,10 +1165,10 @@ def set_spec_from_admin(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1200,10 +1219,10 @@ def get_payment_history(message):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1254,10 +1273,10 @@ def spec_list_keyboard(client_id):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1367,10 +1386,10 @@ def locations_keyboard(phone):
         db.ping(True)
     except Exception:
         db = mysql.connector.connect(
-            host="88.99.149.39",
-            user="wm103323_bot",
-            password="c9tNB6V9K",
-            db="wm103323_bot",
+            host="localhost",
+            user="root",
+            password="rootuser16713",
+            db="bot",
             charset="utf8"
         )
         db_cursor = db.cursor()
@@ -1396,5 +1415,36 @@ def locations_keyboard(phone):
 bot.enable_save_next_step_handlers(delay=2)
 bot.load_next_step_handlers()
 
+
+@app.route(WEBHOOK_URL_PATH, methods=['GET','POST'])
+def webhook():
+    print(flask.request.headers)
+    if flask.request.headers.get('content-type') == 'application/json':
+        json_string = flask.request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        print('You NOT made it!')
+        flask.abort(403)
+
+
+bot.remove_webhook()
+
+time.sleep(1)
+
+bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH,
+                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+
+
+app.run(
+    host=WEBHOOK_LISTEN,
+    port=WEBHOOK_PORT,
+    ssl_context=(WEBHOOK_SSL_CERT,WEBHOOK_SSL_PRIV),
+    debug=True
+)
+
+"""
 if __name__ == '__main__':
     bot.polling(none_stop=True)
+"""
